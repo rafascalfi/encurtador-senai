@@ -2,14 +2,15 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /links/{linkId} {
-      // Qualquer pessoa pode ler um link para que o redirecionamento funcione
+      // Qualquer pessoa pode ler (necessário para o redirecionamento)
       allow read: if true;
       
-      // Apenas usuários autenticados podem criar links associados ao seu próprio UID
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // Qualquer pessoa pode criar e atualizar (sem login necessário)
+      allow create: if true;
+      allow update: if true;
       
-      // Apenas o dono do link pode atualizar ou excluir
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Qualquer pessoa pode excluir (só aparece para quem criou via sessionId)
+      allow delete: if true;
     }
   }
 }
