@@ -5,7 +5,6 @@ import {
   onSnapshot, 
   query, 
   where, 
-  orderBy, 
   deleteDoc, 
   doc, 
   serverTimestamp 
@@ -34,15 +33,17 @@ export default function Dashboard() {
   useEffect(() => {
     const q = query(
       collection(db, 'links'),
-      where('sessionId', '==', sessionId),
-      orderBy('createdAt', 'desc')
+      where('sessionId', '==', sessionId)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const linksData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const linksData = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .sort((a, b) => {
+          const aTime = a.createdAt?.seconds ?? 0;
+          const bTime = b.createdAt?.seconds ?? 0;
+          return bTime - aTime;
+        });
       setLinks(linksData);
     });
 
